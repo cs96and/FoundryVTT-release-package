@@ -1,0 +1,23 @@
+name: Test The Action
+on:
+  workflow_dispatch:
+    inputs:
+      package-token:
+        description: 'The FoundryVTT package token'
+        default: 'abcdefg123456'
+        required: true
+        type: string
+      module-json-url:
+        description: 'The URL of the module.json'
+        default: 'https://example.com/module.json'
+        required: true
+        type: string
+jobs:
+  package-release-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: action-test
+      uses: ./
+      with:
+        package-token: ${{ inputs.package-token }}
+        module-json-url: ${{ inputs.module-json-url }}
