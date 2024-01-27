@@ -23,3 +23,7 @@ jobs:
       with:
         package-token: ${{ inputs.package-token }}
         module-json-url: ${{ inputs.module-json-url }}
+    - action-output:
+      run: |
+        echo HTTP Response: ${{ package-release-test.outputs.response-code }}
+        echo Result: ${{ package-release-test.outputs.result }}
