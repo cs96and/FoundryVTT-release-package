@@ -19,14 +19,15 @@ jobs:
       response-code: ${{ steps.action-test.outputs.response-code }}
       result: ${{ steps.action-test.outputs.result }}
     steps:
-    - id: checkout
+    - name: checkout
       uses: actions/checkout@v4
-    - id: action-test
+    - name: action-test
+      id: action-test
       uses: ./
       with:
         package-token: ${{ inputs.package-token }}
         module-json-url: ${{ inputs.module-json-url }}
-    - id: output-results
+    - name: output-results
       run: |
         echo "HTTP Response: ${{ steps.action-test.outputs.response-code }}"
         echo "Result: ${{ steps.action-test.outputs.result }}"
