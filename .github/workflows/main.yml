@@ -15,10 +15,13 @@ on:
 jobs:
   package-release-test:
     runs-on: ubuntu-latest
+    outputs:
+      response-code: ${{ steps.action-test.outputs.response-code }}
+      result: ${{ steps.step2.action-test.outputs.result }}
     steps:
-    - name: checkout
+    - id: checkout
       uses: actions/checkout@v4
-    - name: action-test
+    - id: action-test
       uses: ./
       with:
         package-token: ${{ inputs.package-token }}
