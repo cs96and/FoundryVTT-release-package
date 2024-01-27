@@ -26,11 +26,7 @@ jobs:
       with:
         package-token: ${{ inputs.package-token }}
         module-json-url: ${{ inputs.module-json-url }}
-  output:
-    runs-on: ubuntu-latest
-    needs: package-release-test
-    steps:
-    - name: action-output
+    - id: output-results
       run: |
-        echo HTTP Response: ${{ needs.package-release-test.outputs.response-code }}
-        echo Result: ${{ needs.package-release-test.outputs.result }}
+        echo "HTTP Response: ${{ steps.action-test.outputs.response-code }}"
+        echo "Result: ${{ steps.action-test.outputs.result }}"
