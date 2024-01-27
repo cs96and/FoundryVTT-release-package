@@ -18,5 +18,5 @@ runs:
   using: 'composite'
   steps:
   - id: 'publish'
-    run: 'publish.py "${{ inputs.package-token }}" "${{ inputs.module-json-url }}"'
+    run: '${{ github.action_path }}/publish.py "${{ inputs.package-token }}" "${{ inputs.module-json-url }}"'
     shell: 'python'
