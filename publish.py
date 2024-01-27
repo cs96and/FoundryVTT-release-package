@@ -6,5 +6,6 @@ if len(sys.argv) < 3:
 
 print(sys.argv[1], sys.argv[2], file=sys.stderr)
 
-print("result=This is some output!")
 print("response-code=200")
+print("result=This is some output!")
+
