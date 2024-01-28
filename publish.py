@@ -3,44 +3,71 @@ import os
 import sys
 import urllib.request
 
-if len(sys.argv) < 3:
-    print(f"Usage: {os.path.filename(sys.argv[0])} <token> <url>", file=sys.stderr)
-    exit(1)
+API_URL = "https://api.foundryvtt.com/_api/packages/release_version/"
 
-module = None
-with urllib.request.urlopen(sys.argv[2]) as f:
-    module = json.load(f)
 
-request = {
-    "id": module["id"],
-    "dry-run": True,
-    "release": {
-        "version": module["version"],
-        "manifest": sys.argv[2],
+def main() -> int:
+    if len(sys.argv) < 3:
+        print(f"Usage: {os.path.filename(sys.argv[0])} <token> <url>", file=sys.stderr)
+        return 1
+
+    module = getModule(sys.argv[2])
+    requestJson = constructRequestJson(module)
+
+    print(requestJson, file=sys.stderr)
+
+    status, result = sendRequest(requestJson)
+
+    print("Response: {status}", file=sys.stderr)
+    print(result, file=sys.stderr)
+
+    print(f"response-code={status}")
+    print("result<<EOF")
+    print(result)
+    print("EOF")
+
+    return 0 if status == 200 else status
+
+
+def getModule(url) -> dict:
+    with urllib.request.urlopen(sys.argv[2]) as f:
+        return json.load(f)
+
+
+def constructRequestJson(module) -> str:
+    request = {
+        "id": module["id"],
+        "dry-run": True,
+        "release": {
+            "version": module["version"],
+            "manifest": sys.argv[2],
+        },
+        "compatibility": {
+            "minimum": module["compatibility"]["minimum"],
+            "verified": module["compatibility"]["verified"],
+        }
     }
-}
 
-notes = module.get("changelog")
-if notes:
-    request["release"]["notes"] = notes
+    if notes := module.get("changelog"):
+        request["release"]["notes"] = notes
 
-moduleCompat = module.get("compatibility")
-if moduleCompat:
-    compat = {}
-    min = moduleCompat.get("minimum")
-    if min:
-        compat["minimum"] = min
-    max = moduleCompat.get("maximum")
-    if max:
-        compat["maximum"] = max
-    verified = moduleCompat.get("verified")
-    if verified:
-        moduleCompat["verified"] = verified
-    request["compatibility"] = compat
+    if verified := module["compatibility"].get("verified"):
+        request["compatibility"]["verified"] = verified
 
-requestJson = json.dumps(request)
+    return json.dumps(request, separators=(',', ':'))
 
-print(requestJson, file=sys.stderr)
 
-print("response-code=200")
-print("result=This is some output!")
+def sendRequest(requestJson):
+    result = urllib.request.urlopen(urllib.request.Request(
+        API_URL, method="POST", data=requestJson,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": sys.argv[1]
+        }
+    ))
+
+    return result.status, result.read()
+
+
+if __name__ == '__main__':
+    sys.exit(main())
