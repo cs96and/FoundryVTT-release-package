@@ -17,6 +17,7 @@ def main() -> int:
     print(requestJson, file=sys.stderr)
 
     status, result = sendRequest(requestJson)
+    status = int(status)
     result = result.decode()
 
     print(f"Response: {status}", file=sys.stderr)
@@ -43,10 +44,10 @@ def constructRequestJson(module) -> str:
             # "version": module["version"],
             "version": "1.18.0",
             "manifest": sys.argv[2],
-        },
-        "compatibility": {
-            "minimum": module["compatibility"]["minimum"],
-            "verified": module["compatibility"]["verified"],
+            "compatibility": {
+                "minimum": module["compatibility"]["minimum"],
+                "verified": module["compatibility"]["verified"],
+            }
         }
     }
 
@@ -54,7 +55,7 @@ def constructRequestJson(module) -> str:
         request["release"]["notes"] = notes
 
     if verified := module["compatibility"].get("verified"):
-        request["compatibility"]["verified"] = verified
+        request["release"]["compatibility"]["verified"] = verified
 
     return json.dumps(request, separators=(',', ':'))
 
