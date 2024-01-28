@@ -1,5 +1,8 @@
 name: 'Publish FoundryVTT Package'
 description: 'Publish a FoundryVTT package using the Package Release API'
+branding :
+  icon : 'box'
+  color : 'orange'
 inputs:
   package-token:
     description: 'The secret token of your package for the FoundryVTT Package Release API'
