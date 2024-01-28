@@ -8,12 +8,12 @@ inputs:
     description: 'The URL of the module.json file'
     required: true
 outputs:
-  result:
-    description: 'The result from the Package Release API'
-    value: ${{ steps.publish.outputs.result }}
   response-code:
     description: 'The HTTP response code'
     value: ${{ steps.publish.outputs.response-code }}
+  response-json:
+    description: 'The JSON response from the Package Release API'
+    value: ${{ steps.publish.outputs.response-json }}
 runs:
   using: 'composite'
   steps:

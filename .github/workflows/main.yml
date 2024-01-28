@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       response-code: ${{ steps.action-test.outputs.response-code }}
-      result: ${{ steps.action-test.outputs.result }}
+      response-json: ${{ steps.action-test.outputs.response-json }}
     steps:
     - name: checkout
       uses: actions/checkout@v4
@@ -30,4 +30,4 @@ jobs:
     - name: output-results
       run: |
         echo "HTTP Response: ${{ steps.action-test.outputs.response-code }}"
-        echo "Result: ${{ steps.action-test.outputs.result }}"
+        echo "Result: ${{ steps.action-test.outputs.response-json }}"

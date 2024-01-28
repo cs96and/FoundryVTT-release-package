@@ -18,14 +18,14 @@ def main() -> int:
 
     printErr(requestJson)
 
-    status, reason, result = sendRequest(requestJson, token)
+    status, reason, responseJson = sendRequest(requestJson, token)
 
     printErr(f"Response: {status} {reason}")
-    printErr(result)
+    printErr(responseJson)
 
     print(f"response-code={status}")
-    print("result<<EOF")
-    print(result)
+    print("response-json<<EOF")
+    print(responseJson)
     print("EOF")
 
     return 0 if status == 200 else 2
@@ -69,7 +69,7 @@ def constructRequestJson(module: dict, url: str) -> str:
 def sendRequest(requestJson: str, token: str) -> (int, str, str):
     """Send the API request to Foundry website"""
     try:
-        result = urllib.request.urlopen(urllib.request.Request(
+        response = urllib.request.urlopen(urllib.request.Request(
             API_URL, method="POST",
             data=requestJson.encode(),
             headers={
@@ -78,9 +78,9 @@ def sendRequest(requestJson: str, token: str) -> (int, str, str):
             }
         ))
     except urllib.error.HTTPError as e:
-        result = e
+        response = e
 
-    return int(result.status), result.reason, result.read().decode()
+    return int(response.status), response.reason, response.read().decode()
 
 
 if __name__ == '__main__':
