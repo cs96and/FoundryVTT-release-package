@@ -28,7 +28,7 @@ def main() -> int:
     print(result)
     print("EOF")
 
-    return 0 if status == 200 else status
+    return 0 if status == 200 else 2
 
 
 def printErr(*args, **kwargs):
