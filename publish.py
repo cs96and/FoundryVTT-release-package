@@ -59,8 +59,8 @@ def constructRequestJson(module: dict, url: str) -> str:
     if notes := module.get("changelog"):
         request["release"]["notes"] = notes
 
-    if verified := module["compatibility"].get("verified"):
-        request["release"]["compatibility"]["verified"] = verified
+    if maximum := module["compatibility"].get("maximum"):
+        request["release"]["compatibility"]["maximum"] = maximum
 
     return json.dumps(request, separators=(',', ':'))
 
