@@ -46,7 +46,6 @@ def constructRequestJson(module: dict, url: str) -> str:
     """Construct the JSON API request"""
     request = {
         "id": module["id"],
-        "dry-run": True,
         "release": {
             "version": module["version"],
             "manifest": url,
