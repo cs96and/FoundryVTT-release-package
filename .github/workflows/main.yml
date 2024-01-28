@@ -1,0 +1,33 @@
+name: Test The Action
+on:
+  workflow_dispatch:
+    inputs:
+      package-token:
+        description: 'The FoundryVTT package token'
+        default: 'abcdefg123456'
+        required: true
+        type: string
+      module-json-url:
+        description: 'The URL of the module.json'
+        default: 'https://example.com/module.json'
+        required: true
+        type: string
+jobs:
+  package-release-test:
+    runs-on: ubuntu-latest
+    outputs:
+      response-code: ${{ steps.action-test.outputs.response-code }}
+      response-json: ${{ steps.action-test.outputs.response-json }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: action-test
+      id: action-test
+      uses: ./
+      with:
+        package-token: ${{ inputs.package-token }}
+        module-json-url: ${{ inputs.module-json-url }}
+    - name: output-results
+      run: |
+        echo "HTTP Response: ${{ steps.action-test.outputs.response-code }}"
+        echo "Result: ${{ steps.action-test.outputs.response-json }}"
