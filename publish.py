@@ -17,8 +17,9 @@ def main() -> int:
     print(requestJson, file=sys.stderr)
 
     status, result = sendRequest(requestJson)
+    result = result.decode()
 
-    print("Response: {status}", file=sys.stderr)
+    print(f"Response: {status}", file=sys.stderr)
     print(result, file=sys.stderr)
 
     print(f"response-code={status}")
@@ -39,7 +40,8 @@ def constructRequestJson(module) -> str:
         "id": module["id"],
         "dry-run": True,
         "release": {
-            "version": module["version"],
+            # "version": module["version"],
+            "version": "1.18.0",
             "manifest": sys.argv[2],
         },
         "compatibility": {
