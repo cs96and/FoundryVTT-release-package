@@ -58,14 +58,17 @@ def constructRequestJson(module) -> str:
 
 
 def sendRequest(requestJson):
-    result = urllib.request.urlopen(urllib.request.Request(
-        API_URL, method="POST",
-        data=requestJson.encode(),
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": sys.argv[1]
-        }
-    ))
+    try:
+        result = urllib.request.urlopen(urllib.request.Request(
+            API_URL, method="POST",
+            data=requestJson.encode(),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": sys.argv[1]
+            }
+        ))
+    except urllib.error.HTTPError as e:
+        result = e
 
     return result.status, result.read()
 
