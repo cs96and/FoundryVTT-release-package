@@ -2,10 +2,10 @@ name: 'Publish FoundryVTT Package'
 description: 'Publish a FoundryVTT package using the Package Release API'
 inputs:
   package-token:
-    description: 'The Package Release Token for the FoundryVTT Package Release API'
+    description: 'The secret token of your package for the FoundryVTT Package Release API'
     required: true
-  module-json-url:
-    description: 'The URL of the module.json file'
+  manifest-url:
+    description: 'The URL of the JSON manifest of your package'
     required: true
 outputs:
   response-code:
@@ -18,5 +18,5 @@ runs:
   using: 'composite'
   steps:
   - id: 'publish'
-    run: 'python ${{ github.action_path }}/publish.py "${{ inputs.package-token }}" "${{ inputs.module-json-url }}" >> "$GITHUB_OUTPUT"'
+    run: 'python ${{ github.action_path }}/publish.py "${{ inputs.package-token }}" "${{ inputs.manifest-url }}" >> "$GITHUB_OUTPUT"'
     shell: 'bash'
