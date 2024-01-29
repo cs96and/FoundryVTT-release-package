@@ -1,3 +1,4 @@
+import inspect
 import json
 import os
 import sys
@@ -7,59 +8,75 @@ API_URL = "https://api.foundryvtt.com/_api/packages/release_version/"
 
 
 def main() -> int:
-    if len(sys.argv) < 3:
-        printErr(f"Usage: {os.path.filename(sys.argv[0])} <token> <url>")
-        return 1
+    # Make sure we can open the github output stream before continuing
+    githubOutputFile = os.fdopen(3, mode='w+')
 
-    token, moduleUrl = sys.argv[1:3]
+    # Get the required parameters from the environment
+    token = getMandatoryEnv("INPUT_PACKAGE-TOKEN")
+    manifestUrl = getMandatoryEnv("INPUT_MANIFEST-URL")
+    version = os.environ.get("INPUT_VERSION")
+    notesUrl = os.environ.get("INPUT_NOTES-URL")
+    dryRun = os.environ.get("INPUT_DRY-RUN")
+    dryRun = (dryRun and dryRun != "0" and dryRun.lower() != "false")
 
-    module = getModule(moduleUrl)
-    requestJson = constructRequestJson(module, moduleUrl)
+    manifest = getManifest(manifestUrl)
+    requestJson = constructRequestJson(manifest, manifestUrl, version, notesUrl, dryRun)
 
-    printErr(requestJson)
+    print(requestJson)
 
     status, reason, responseJson = sendRequest(requestJson, token)
 
-    printErr(f"Response: {status} {reason}")
-    printErr(responseJson)
-
-    print(f"response-code={status}")
-    print("response-json<<EOF")
+    print(f"Response: {status} {reason}")
     print(responseJson)
-    print("EOF")
+
+    # Use inspect.cleandoc to remove the initial new-line and indentation from the string
+    githubOutputFile.write(inspect.cleandoc(f"""
+        response-code={status}
+        response-json<<EOF
+        {responseJson}
+        EOF
+        """))
 
     return 0 if status == 200 else 2
 
 
-def printErr(*args, **kwargs):
-    """Print to stderr"""
-    print(*args, **kwargs, file=sys.stderr)
+def getMandatoryEnv(name: str) -> str:
+    """Get an environment variable and quit if it's not defined"""
+    try:
+        value = os.environ[name]
+    except KeyError:
+        print(f"ERROR: {name} not defined")
+        exit(1)
+
+    return value
 
 
-def getModule(url: str) -> dict:
-    """Read the module.json from the URL"""
+def getManifest(url: str) -> dict:
+    """Read the JSON manifest from the URL"""
     with urllib.request.urlopen(url) as f:
         return json.load(f)
 
 
-def constructRequestJson(module: dict, url: str) -> str:
+def constructRequestJson(manifest: dict, manifestUrl: str, version: str, notesUrl: str, dryRun: bool) -> str:
     """Construct the JSON API request"""
     request = {
-        "id": module["id"],
+        "id": manifest["id"],
+        "dry-run": dryRun,
         "release": {
-            "version": module["version"],
-            "manifest": url,
+            "version": version if version else manifest["version"],
+            "manifest": manifestUrl,
             "compatibility": {
-                "minimum": module["compatibility"]["minimum"],
-                "verified": module["compatibility"]["verified"],
+                "minimum": manifest["compatibility"]["minimum"],
+                "verified": manifest["compatibility"]["verified"],
             }
         }
     }
 
-    if notes := module.get("changelog"):
-        request["release"]["notes"] = notes
+    # Use provided notes URL first.  If that is not provided, use the changelog from the manifest
+    if notesUrl := notesUrl if notesUrl else manifest.get("changelog"):
+        request["release"]["notes"] = notesUrl
 
-    if maximum := module["compatibility"].get("maximum"):
+    if maximum := manifest["compatibility"].get("maximum"):
         request["release"]["compatibility"]["maximum"] = maximum
 
     return json.dumps(request, separators=(',', ':'))
@@ -69,7 +86,8 @@ def sendRequest(requestJson: str, token: str) -> (int, str, str):
     """Send the API request to Foundry website"""
     try:
         response = urllib.request.urlopen(urllib.request.Request(
-            API_URL, method="POST",
+            API_URL,
+            method="POST",
             data=requestJson.encode(),
             headers={
                 "Content-Type": "application/json",
