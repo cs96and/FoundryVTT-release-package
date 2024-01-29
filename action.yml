@@ -5,11 +5,20 @@ branding :
   color : 'orange'
 inputs:
   package-token:
-    description: 'The secret token of your package for the FoundryVTT Package Release API'
+    description: 'The secret token of your package for the FoundryVTT Package Release API.'
     required: true
   manifest-url:
-    description: 'The URL of the JSON manifest of your package'
+    description: 'The URL of the JSON manifest of your package.'
     required: true
+  version:
+    description: 'The version of the release.  Leave undefined to use the `version` entry from your manifest file.'
+    required: false
+  notes-url:
+    description: 'The URL of the release notes for this release of your package.  Leave undefined to use the `changelog` entry from your manifest file.'
+    required: false
+  dry-run:
+    description: 'Set to any value apart from `false` or `0` to do a dry-run.  Leave undefined or set to `false` or `0` for a proper release.'
+    required: false
 outputs:
   response-code:
     description: 'The HTTP response code'
@@ -20,6 +29,13 @@ outputs:
 runs:
   using: 'composite'
   steps:
-  - id: 'publish'
-    run: 'python ${{ github.action_path }}/publish.py "${{ inputs.package-token }}" "${{ inputs.manifest-url }}" >> "$GITHUB_OUTPUT"'
+  - name: publish
+    id: 'publish'
+    env:
+      INPUT_PACKAGE-TOKEN: ${{ inputs.package-token }}
+      INPUT_MANIFEST-URL: ${{ inputs.manifest-url }}
+      INPUT_VERSION: ${{ inputs.version }}
+      INPUT_NOTES-URL: ${{ inputs.notes-url }}
+      INPUT_DRY-RUN: ${{ inputs.dry-run }}
+    run: 'python ${{ github.action_path }}/publish.py 3>> "$GITHUB_OUTPUT"'
     shell: 'bash'

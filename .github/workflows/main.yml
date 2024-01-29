@@ -3,15 +3,26 @@ on:
   workflow_dispatch:
     inputs:
       package-token:
-        description: 'The FoundryVTT package token'
-        default: 'abcdefg123456'
+        description: 'Package token'
         required: true
         type: string
       manifest-url:
-        description: 'The URL of the JSON manifest of your package'
-        default: 'https://example.com/module.json'
+        description: 'Manifest URL'
         required: true
         type: string
+      version:
+        description: 'Version override'
+        required: false
+        type: string
+      notes-url:
+        description: 'Notes URL override'
+        required: false
+        type: string
+      dry-run:
+        description: 'Dry-run?'
+        required: false
+        type: boolean
+        default: true
 jobs:
   package-release-test:
     runs-on: ubuntu-latest
@@ -19,6 +30,12 @@ jobs:
       response-code: ${{ steps.action-test.outputs.response-code }}
       response-json: ${{ steps.action-test.outputs.response-json }}
     steps:
+    - name: mask-token
+      id: mask-token
+      # Hack to mask the package token in the output logs.
+      run: |
+        TOKEN_MASK=$(jq -r '.inputs."package-token"' $GITHUB_EVENT_PATH)
+        echo ::add-mask::$TOKEN_MASK
     - name: checkout
       uses: actions/checkout@v4
     - name: action-test
@@ -27,6 +44,9 @@ jobs:
       with:
         package-token: ${{ inputs.package-token }}
         manifest-url: ${{ inputs.manifest-url }}
+        version: ${{ inputs.version }}
+        notes-url: ${{ inputs.notes-url }}
+        dry-run: ${{ inputs.dry-run }}
     - name: output-results
       run: |
         echo "HTTP Response: ${{ steps.action-test.outputs.response-code }}"
