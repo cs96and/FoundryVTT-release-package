@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# FoundryVTT-release-package
+# https://github.com/cs96and/FoundryVTT-release-package
+#
+# Copyright (c) 2022-2025 Alan Davies - All Rights Reserved.
+#
+# You may use, distribute and modify this code under the terms of the MIT license.
+#
+# You should have received a copy of the MIT license with this file. If not, please visit:
+# https://mit-license.org/
+
+
 import inspect
 import json
 import os
