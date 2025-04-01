@@ -96,7 +96,7 @@ def constructRequestJson(manifest: dict, manifestUrl: str, version: str, notesUr
     return json.dumps(request, separators=(',', ':'))
 
 
-def sendRequest(requestJson: str, token: str) -> (int, str, str):
+def sendRequest(requestJson: str, token: str) -> tuple[int, str, str]:
     """Send the API request to Foundry website"""
     try:
         response = urllib.request.urlopen(urllib.request.Request(
