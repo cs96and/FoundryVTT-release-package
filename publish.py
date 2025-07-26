@@ -18,7 +18,7 @@ import os
 import sys
 import urllib.request
 
-API_URL = "https://api.foundryvtt.com/_api/packages/release_version/"
+API_URL = "https://foundryvtt.com/_api/packages/release_version/"
 
 
 def main() -> int:
